@@ -1,6 +1,6 @@
+#Purpose was to determine appropriate resolution and explore some markers/scMCA (not included in final scripts for finished analysis)
 setwd("/N/project/kim_lab/Acri_Dom/Isolation_Exp/analysis_2023/")
 #fromLuke load all just in case, #out all packages not using
-library(dplyr)
 library(Seurat)#rgeos module must be loaded prior to RStudio on RED
 library(patchwork)
 library(SoupX)
@@ -10,7 +10,6 @@ library(metap)
 library(ggplot2)
 library(paletteer)
 library(scales)
-#library(monocle3)
 library(Matrix)
 library(SeuratWrappers)
 library(scMCA)
@@ -18,8 +17,6 @@ library(fields)
 library(KernSmooth)
 library(ROCR)
 library(parallel)
-#library(scran)
-#library(scWGCNA)
 library(sctransform)
 library(DoubletFinder)
 
@@ -162,35 +159,6 @@ all.combined.sct.simple.markers <- FindAllMarkers(all.combined.sct,only.pos = T,
 write.csv(all.combined.sct.simple.markers,"20230103_v2_SCT_all.combined.sct_simple_annotation.csv")
 
 
-
-#redo marker genes on SCT slot (was previously done on integration markers)
-DefaultAssay(all.combined.sct)<-"SCT"
-all.combined.sct
-#no need to redo scMCA because it was done on SCA already
-Idents(all.combined.sct)<-"integrated_snn_res.0.8"
-all.combined.sct.markers <- FindAllMarkers(all.combined.sct,only.pos = T, min.pct = 0.25, logfc.threshold = 0.25)
-write.csv(all.combined.sct.markers,"20221214_v2_SCT_all.combined.sct_res0.8_36cluster_markers.csv")
-
-#save additional Seurat files for collaborators (done 20230106-1500)
-neuron<-subset(all.combined.sct, simple_annotation == "N")
-saveRDS(neuron, file = "20230106_neuron.rds")
-rm(neuron)
-microglia<-subset(all.combined.sct, simple_annotation == "M")
-saveRDS(microglia, file = "20230106_microglia.rds")
-rm(microglia)
-astrocyte<-subset(all.combined.sct, simple_annotation == "A")
-saveRDS(astrocyte, file = "20230106_astrocyte.rds")
-rm(astrocyte)
-oligo<-subset(all.combined.sct, simple_annotation == "O")
-saveRDS(oligo, file = "20230106_oligo.rds")
-rm(oligo)
-endo<-subset(all.combined.sct, simple_annotation == "EC")
-saveRDS(endo, file = "20230106_endo.rds")
-rm(endo)
-mixed<-subset(all.combined.sct, simple_annotation == "Mx")
-saveRDS(mixed, file = "20230106_mixed.rds")
-rm(mixed)
-
 #clean for new analysis
 nuc_iso = all.combined.sct
 nuc_iso$DF.classifications_0.25_0.19_4444 <- NULL
@@ -223,14 +191,3 @@ FeaturePlot(nuc_iso,features = "percent.mt",split.by = "tech")#5x15
 Idents(nuc_iso)<-"sample"
 DefaultAssay(nuc_iso)<-"SCT"
 VlnPlot(nuc_iso, features = c("percent.mt"))
-
-
-###########FUTURE?###############################
-
-#resculter with dims 1:2 to show more drastic effects?
-ElbowPlot(all.combined.sct, ndims = 50)
-nuc_iso_mito = RunUMAP(nuc_iso, reduction = "pca", dims = 1:46, verbose = F)#selected 46; removed first 2 PC's based on mt- bias
-nuc_iso_mito = FindNeighbors(nuc_iso_mito, reduction = "pca", dims = 1:46)
-
-Ident(nuc_iso_mito)
-DimPlot(nuc_iso_mito,reduction = "umap")

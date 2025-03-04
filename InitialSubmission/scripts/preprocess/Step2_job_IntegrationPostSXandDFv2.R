@@ -30,4 +30,4 @@ all.anchors <- FindIntegrationAnchors(object.list = all.list, normalization.meth
 all.combined.sct = IntegrateData(anchorset = all.anchors, normalization.method = "SCT")
 #can remove everything but all.combined.sct
 all.combined.sct = RunPCA(all.combined.sct,verbose = F)
-saveRDS(all.combined.sct,file = "20221207_all.combined.sct.rds")
+saveRDS(all.combined.sct,file = "20221207_all.combined.sct.rds") #file was renamed to 20231206_snIsolation_collab.rds during exploratory analysis before being shared with collaborators
